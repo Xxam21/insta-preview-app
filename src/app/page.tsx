@@ -36,6 +36,15 @@ export default function Home() {
   });
 
   useEffect(() => {
+    console.log('Checking localStorage on mount...');
+    const saved = localStorage.getItem('instaPreviewImages');
+    console.log('Found saved images:', saved ? JSON.parse(saved).length : 0);
+    if (saved) {
+      setImages(JSON.parse(saved));
+    }
+  }, []);
+
+  useEffect(() => {
     const savedProfilePicture = localStorage.getItem('instaPreviewProfilePicture');
     if (savedProfilePicture) {
       setProfilePicture(savedProfilePicture);
@@ -56,6 +65,7 @@ export default function Home() {
 
   const saveToLocalStorage = (newImages: string[]) => {
     try {
+      console.log('Saving images to localStorage:', newImages.length);
       localStorage.setItem('instaPreviewImages', JSON.stringify(newImages));
     } catch (error) {
       if (error instanceof Error) {
