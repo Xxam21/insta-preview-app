@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Grid, Users, BookOpen, Menu, Heart, Plus, Trash2 } from 'lucide-react';
+import { Upload, Grid, Users, BookOpen, Menu, Heart, Plus, Trash2, Sun, Moon } from 'lucide-react';
 import Image from 'next/image';
 import {
   DndContext,
@@ -21,7 +21,10 @@ import {
 import { DraggableImage } from '../components/DraggableImage';
 import { compressImage } from '../utils/imageCompression';
 
+import { useTheme } from '../context/ThemeContext';
+
 export default function Home() {
+  const { theme, toggleTheme } = useTheme();
   // Initialize state
   const [images, setImages] = useState<string[]>([]);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
@@ -124,11 +127,17 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white touch-pan-y">
+    <main className="min-h-screen touch-pan-y">
       {/* Profile Header */}
-      <header className="sticky top-0 z-50 bg-black border-b border-gray-800">
+      <header className="sticky top-0 z-50 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
         <div className="px-4 py-3 flex items-center">
-          <div className="w-12">
+          <div className="w-24 flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="text-white"
+            >
+              {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            </button>
             <label className="cursor-pointer text-white">
               <input
                 type="file"

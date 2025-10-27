@@ -3,6 +3,23 @@
 @tailwind utilities;
 
 :root {
+  --background: white;
+  --text: black;
+  --border: #dbdbdb;
+}
+
+.dark {
+  --background: black;
+  --text: white;
+  --border: #363636;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+}
+
+:root {
   --foreground-rgb: 255, 255, 255;
   --background-rgb: 0, 0, 0;
 }
