@@ -6,25 +6,35 @@
   --background: white;
   --text: black;
   --border: #dbdbdb;
+  --button-text: black;
+  --secondary-text: #737373;
 }
 
 .dark {
   --background: black;
   --text: white;
   --border: #363636;
+  --button-text: white;
+  --secondary-text: #a3a3a3;
 }
 
-body {
+html, body {
   background-color: var(--background);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+button, label {
+  color: var(--button-text);
+}
+
+/* Appliquer la couleur de texte par défaut à tous les éléments de texte */
+h1, h2, p, div {
   color: var(--text);
 }
 
-:root {
-  --foreground-rgb: 255, 255, 255;
-  --background-rgb: 0, 0, 0;
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+/* Pour les textes secondaires */
+.text-gray-400, .text-gray-500 {
+  color: var(--secondary-text);
 }

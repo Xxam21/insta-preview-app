@@ -20,22 +20,12 @@ import {
 } from '@dnd-kit/sortable';
 import { DraggableImage } from '../components/DraggableImage';
 import { compressImage } from '../utils/imageCompression';
-
 import { useTheme } from '../context/ThemeContext';
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
-  // Initialize state
   const [images, setImages] = useState<string[]>([]);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-
-  // Charger la photo de profil après le montage du composant
-  useEffect(() => {
-    const savedProfilePicture = localStorage.getItem('instaPreviewProfilePicture');
-    if (savedProfilePicture) {
-      setProfilePicture(savedProfilePicture);
-    }
-  }, []);
   const [profileInfo] = useState({
     username: 'Anywhere.project',
     posts: 34,
@@ -45,7 +35,13 @@ export default function Home() {
     bio: '👥 Bricolages, bivouacs & liberté\n🔧 Future shop : aménagements & gear'
   });
 
-  // Initialize sensors for drag and drop
+  useEffect(() => {
+    const savedProfilePicture = localStorage.getItem('instaPreviewProfilePicture');
+    if (savedProfilePicture) {
+      setProfilePicture(savedProfilePicture);
+    }
+  }, []);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -58,19 +54,6 @@ export default function Home() {
     })
   );
 
-  // Load saved images on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('instaPreviewImages');
-      if (saved) {
-        setImages(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error('Error loading saved images:', error);
-    }
-  }, []);
-
-  // Save images to localStorage
   const saveToLocalStorage = (newImages: string[]) => {
     try {
       localStorage.setItem('instaPreviewImages', JSON.stringify(newImages));
@@ -85,7 +68,6 @@ export default function Home() {
     }
   };
 
-  // Handle drag end for image reordering
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
@@ -100,7 +82,6 @@ export default function Home() {
     }
   };
 
-  // Handle image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
@@ -115,7 +96,7 @@ export default function Home() {
           });
           
           const compressed = await compressImage(base64);
-          newImages.unshift(compressed); // Ajouter au début du tableau
+          newImages.unshift(compressed);
         } catch (error) {
           console.error('Error processing image:', error);
         }
@@ -127,18 +108,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen touch-pan-y">
+    <main className="min-h-screen touch-pan-y" style={{ backgroundColor: 'var(--background)' }}>
       {/* Profile Header */}
       <header className="sticky top-0 z-50 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
         <div className="px-4 py-3 flex items-center">
           <div className="w-24 flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="text-white"
-            >
-              {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-            </button>
-            <label className="cursor-pointer text-white">
+            <label className="cursor-pointer">
               <input
                 type="file"
                 accept="image/*"
@@ -148,16 +123,22 @@ export default function Home() {
               />
               <Plus className="w-6 h-6" />
             </label>
+            <button
+              onClick={toggleTheme}
+              className="hover:opacity-80"
+            >
+              {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            </button>
           </div>
           
           <div className="flex-1 text-center">
-            <h1 className="text-lg font-semibold text-white">{profileInfo.username}</h1>
+            <h1 className="text-lg font-semibold">{profileInfo.username}</h1>
           </div>
 
           <div className="w-12 flex justify-end">
             {images.length > 0 && (
               <button 
-                className="text-white" 
+                className="hover:opacity-80" 
                 onClick={() => {
                   if (window.confirm('Voulez-vous vraiment supprimer toutes les images ?')) {
                     if (window.confirm('Cette action est irréversible. Êtes-vous vraiment sûr ?')) {
@@ -179,10 +160,10 @@ export default function Home() {
         {/* Username */}
         <h2 className="text-[22px] font-semibold mb-8">{profileInfo.username}</h2>
 
-        {/* Profile Info Row */}
-        <div className="flex items-start mb-8">
+        {/* Profile Info Section */}
+        <div className="grid grid-cols-[auto,1fr] gap-x-8 mb-16">
           {/* Profile Picture */}
-          <div className="relative w-[77px] h-[77px] mr-16">
+          <div className="relative w-[77px] h-[77px]">
             <label className="block relative w-full h-full cursor-pointer">
               <input
                 type="file"
@@ -226,45 +207,46 @@ export default function Home() {
           </div>
 
           {/* Stats */}
-          <div className="flex-1">
-            <div className="flex gap-12 text-center">
-              <div>
-                <div className="font-semibold text-white text-lg">{profileInfo.posts}</div>
-                <div className="text-sm text-white">publications</div>
-              </div>
-              <div>
-                <div className="font-semibold text-white text-lg">{profileInfo.followers}</div>
-                <div className="text-sm text-white">followers</div>
-              </div>
-              <div>
-                <div className="font-semibold text-white text-lg">{profileInfo.following}</div>
-                <div className="text-sm text-white">suivi(e)s</div>
-              </div>
+          <div className="grid grid-cols-3 gap-x-16">
+            <div className="text-center">
+              <div className="font-semibold text-lg">{profileInfo.posts}</div>
+              <div className="text-sm">publications</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-lg">{profileInfo.followers}</div>
+              <div className="text-sm">followers</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-lg">{profileInfo.following}</div>
+              <div className="text-sm">suivi(e)s</div>
             </div>
           </div>
         </div>
 
+        {/* Spacer */}
+        <div className="h-16"></div>
+
         {/* Bio */}
         <div className="space-y-2 mb-6">
-          <div className="font-semibold text-white whitespace-pre-line">{profileInfo.fullName}</div>
-          <div className="text-sm text-white whitespace-pre-line">{profileInfo.bio}</div>
+          <div className="font-semibold whitespace-pre-line">{profileInfo.fullName}</div>
+          <div className="text-sm whitespace-pre-line">{profileInfo.bio}</div>
         </div>
 
         {/* Edit Profile Button */}
-        <button className="w-full px-4 py-1.5 bg-[#363636] rounded-lg text-sm font-medium text-white">
+        <button className="w-full px-4 py-1.5 rounded-lg text-sm font-medium" style={{ backgroundColor: 'var(--border)', color: 'var(--text)' }}>
           Modifier le profil
         </button>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex justify-around mt-10 border-t border-gray-800">
-        <button className="px-4 py-3 text-white border-t border-white">
+      <div className="flex justify-around mt-10 border-t" style={{ borderColor: 'var(--border)' }}>
+        <button className="px-4 py-3 border-t" style={{ borderColor: 'var(--text)' }}>
           <Grid size={24} />
         </button>
-        <button className="px-4 py-3 text-gray-500">
+        <button className="px-4 py-3" style={{ color: 'var(--secondary-text)' }}>
           <BookOpen size={24} />
         </button>
-        <button className="px-4 py-3 text-gray-500">
+        <button className="px-4 py-3" style={{ color: 'var(--secondary-text)' }}>
           <Users size={24} />
         </button>
       </div>
@@ -272,10 +254,10 @@ export default function Home() {
       {/* Image Grid */}
       <div className="px-px">
         {images.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
+          <div className="flex flex-col items-center justify-center min-h-[60vh]" style={{ color: 'var(--secondary-text)' }}>
             <Upload className="w-16 h-16 mb-4" />
             <p>Upload images to preview your feed</p>
-            <p className="text-sm text-gray-500 mt-2">Cliquez sur + en haut à droite pour ajouter des images</p>
+            <p className="text-sm mt-2" style={{ color: 'var(--secondary-text)' }}>Cliquez sur + en haut à droite pour ajouter des images</p>
           </div>
         ) : (
           <DndContext
@@ -306,7 +288,6 @@ export default function Home() {
           </DndContext>
         )}
       </div>
-
     </main>
   );
 }
