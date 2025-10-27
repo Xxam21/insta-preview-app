@@ -78,7 +78,16 @@ export default function Home() {
     }
   };
 
+  const handleDragStart = () => {
+    // Désactiver le scroll quand on commence à déplacer
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    // Réactiver le scroll quand on finit de déplacer
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
@@ -273,6 +282,7 @@ export default function Home() {
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
             <SortableContext
