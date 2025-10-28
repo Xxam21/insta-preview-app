@@ -26,6 +26,7 @@ export default function Home() {
   const { theme, toggleTheme } = useTheme();
   const [images, setImages] = useState<string[]>([]);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [compressionStatus, setCompressionStatus] = useState<{active: boolean; progress: number; total: number} | null>(null);
   const [profileInfo] = useState({
     username: 'Anywhere.project',
     posts: 34,
@@ -57,9 +58,18 @@ export default function Home() {
           console.log(`Image ${i + 1}/${savedImages.length}: ${Math.round(size / 1024)}KB`);
           
           try {
-            // Recompresser toutes les images pour s'assurer de la taille optimale
-            const compressed = await compressImage(base64);
-            processedImages.push(compressed);
+            if (size > 100 * 1024) { // Ne montrer le statut que si une compression est nécessaire
+              setCompressionStatus(prev => ({
+                active: true,
+                progress: i + 1,
+                total: savedImages.length
+              }));
+              // Recompresser toutes les images pour s'assurer de la taille optimale
+              const compressed = await compressImage(base64);
+              processedImages.push(compressed);
+            } else {
+              processedImages.push(base64);
+            }
           } catch (error) {
             console.error('Error compressing image:', error);
             processedImages.push(base64); // Garder l'original en cas d'erreur
@@ -72,6 +82,7 @@ export default function Home() {
         localStorage.clear(); // Nettoyer le stockage
         setImages(processedImages);
         saveToLocalStorage(processedImages);
+        setCompressionStatus(null); // Cacher la notification
         
         // Vérifier la nouvelle taille totale
         const newTotalSize = processedImages.reduce((acc, img) => {
@@ -167,7 +178,13 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen touch-pan-y" style={{ backgroundColor: 'var(--background)' }}>
+    <main className="min-h-screen touch-pan-y relative" style={{ backgroundColor: 'var(--background)' }}>
+      {/* Notification de compression */}
+      {compressionStatus && compressionStatus.active && (
+        <div className="fixed top-0 left-0 right-0 bg-blue-500 text-white px-4 py-2 text-center z-50">
+          Optimisation des images en cours... ({compressionStatus.progress}/{compressionStatus.total})
+        </div>
+      )}
       {/* Profile Header */}
       <header className="sticky top-0 z-50 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
         <div className="px-4 py-3 flex items-center">
