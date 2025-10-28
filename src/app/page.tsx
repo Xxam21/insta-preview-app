@@ -114,10 +114,33 @@ export default function Home() {
     })
   );
 
+  const getTotalStorageSize = (images: string[]) => {
+    return images.reduce((acc, img) => {
+      return acc + Math.ceil((img.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+    }, 0);
+  };
+
   const saveToLocalStorage = (newImages: string[]) => {
     try {
       console.log('Saving images to localStorage:', newImages.length);
-      localStorage.setItem('instaPreviewImages', JSON.stringify(newImages));
+      
+      // Vérifier la taille totale
+      let currentImages = [...newImages];
+      let totalSize = getTotalStorageSize(currentImages);
+      
+      // Tant que la taille dépasse 4000KB, supprimer la dernière image
+      while (totalSize > 4000 * 1024 && currentImages.length > 0) {
+        const removedImage = currentImages.pop();
+        totalSize = getTotalStorageSize(currentImages);
+        alert('La limite de stockage (4MB) a été atteinte. La dernière image a été supprimée automatiquement.');
+      }
+
+      // Mettre à jour l'état si des images ont été supprimées
+      if (currentImages.length !== newImages.length) {
+        setImages(currentImages);
+      }
+
+      localStorage.setItem('instaPreviewImages', JSON.stringify(currentImages));
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === 'QuotaExceededError') {
@@ -215,10 +238,8 @@ export default function Home() {
             <button 
               className="hover:opacity-80" 
               onClick={() => {
-                const totalSize = images.reduce((acc, img) => {
-                  return acc + Math.ceil((img.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
-                }, 0);
-                alert(`Stockage utilisé : ${Math.round(totalSize / 1024)}KB`);
+                const totalSize = getTotalStorageSize(images);
+                alert(`Stockage utilisé : ${Math.round(totalSize / 1024)}KB sur 4000KB maximum`);
               }}
             >
               <HardDrive className="w-6 h-6" />
