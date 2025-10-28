@@ -40,7 +40,39 @@ export default function Home() {
     const saved = localStorage.getItem('instaPreviewImages');
     console.log('Found saved images:', saved ? JSON.parse(saved).length : 0);
     if (saved) {
-      setImages(JSON.parse(saved));
+      const savedImages = JSON.parse(saved) as string[];
+      
+      // Vérifier et recompresser les images si nécessaire
+      const checkAndCompressImages = async () => {
+        let needsUpdate = false;
+        const processedImages = [...savedImages];
+
+        for (let i = 0; i < processedImages.length; i++) {
+          const base64 = processedImages[i];
+          const size = Math.ceil((base64.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+          
+          if (size > 200 * 1024) { // Si plus de 200ko
+            console.log(`Recompressing image ${i + 1}/${processedImages.length}...`);
+            try {
+              processedImages[i] = await compressImage(base64);
+              needsUpdate = true;
+            } catch (error) {
+              console.error('Error recompressing image:', error);
+            }
+          }
+        }
+
+        // Mettre à jour le localStorage si des images ont été recompressées
+        if (needsUpdate) {
+          console.log('Saving recompressed images...');
+          setImages(processedImages);
+          saveToLocalStorage(processedImages);
+        } else {
+          setImages(savedImages);
+        }
+      };
+
+      checkAndCompressImages();
     }
   }, []);
 
