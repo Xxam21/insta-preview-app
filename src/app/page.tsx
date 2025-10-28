@@ -42,34 +42,42 @@ export default function Home() {
     if (saved) {
       const savedImages = JSON.parse(saved) as string[];
       
-      // Vérifier et recompresser les images si nécessaire
+      // Vérifier et recompresser les images
       const checkAndCompressImages = async () => {
-        let needsUpdate = false;
-        const processedImages = [...savedImages];
+        console.log('Checking image sizes...');
+        const processedImages = [];
+        let totalSize = 0;
 
-        for (let i = 0; i < processedImages.length; i++) {
-          const base64 = processedImages[i];
+        // Traiter chaque image
+        for (let i = 0; i < savedImages.length; i++) {
+          const base64 = savedImages[i];
           const size = Math.ceil((base64.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+          totalSize += size;
           
-          if (size > 100 * 1024) { // Si plus de 100ko
-            console.log(`Recompressing image ${i + 1}/${processedImages.length}...`);
-            try {
-              processedImages[i] = await compressImage(base64);
-              needsUpdate = true;
-            } catch (error) {
-              console.error('Error recompressing image:', error);
-            }
+          console.log(`Image ${i + 1}/${savedImages.length}: ${Math.round(size / 1024)}KB`);
+          
+          try {
+            // Recompresser toutes les images pour s'assurer de la taille optimale
+            const compressed = await compressImage(base64);
+            processedImages.push(compressed);
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            processedImages.push(base64); // Garder l'original en cas d'erreur
           }
         }
 
-        // Mettre à jour le localStorage si des images ont été recompressées
-        if (needsUpdate) {
-          console.log('Saving recompressed images...');
-          setImages(processedImages);
-          saveToLocalStorage(processedImages);
-        } else {
-          setImages(savedImages);
-        }
+        console.log(`Total storage before compression: ${Math.round(totalSize / 1024)}KB`);
+        
+        // Sauvegarder les images recompressées
+        localStorage.clear(); // Nettoyer le stockage
+        setImages(processedImages);
+        saveToLocalStorage(processedImages);
+        
+        // Vérifier la nouvelle taille totale
+        const newTotalSize = processedImages.reduce((acc, img) => {
+          return acc + Math.ceil((img.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+        }, 0);
+        console.log(`Total storage after compression: ${Math.round(newTotalSize / 1024)}KB`);
       };
 
       checkAndCompressImages();
