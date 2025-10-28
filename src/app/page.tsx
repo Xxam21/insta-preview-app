@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Grid, Users, BookOpen, Menu, Heart, Plus, Trash2, Sun, Moon } from 'lucide-react';
+import { Upload, Grid, Users, BookOpen, Menu, Heart, Plus, Trash2, Sun, Moon, HardDrive } from 'lucide-react';
 import Image from 'next/image';
 import {
   DndContext,
@@ -211,7 +211,18 @@ export default function Home() {
             <h1 className="text-lg font-semibold">{profileInfo.username}</h1>
           </div>
 
-          <div className="w-12 flex justify-end">
+          <div className="w-24 flex justify-end gap-4">
+            <button 
+              className="hover:opacity-80" 
+              onClick={() => {
+                const totalSize = images.reduce((acc, img) => {
+                  return acc + Math.ceil((img.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+                }, 0);
+                alert(`Stockage utilisé : ${Math.round(totalSize / 1024)}KB`);
+              }}
+            >
+              <HardDrive className="w-6 h-6" />
+            </button>
             {images.length > 0 && (
               <button 
                 className="hover:opacity-80" 
