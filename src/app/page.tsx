@@ -51,7 +51,7 @@ export default function Home() {
           const base64 = processedImages[i];
           const size = Math.ceil((base64.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
           
-          if (size > 200 * 1024) { // Si plus de 200ko
+          if (size > 100 * 1024) { // Si plus de 100ko
             console.log(`Recompressing image ${i + 1}/${processedImages.length}...`);
             try {
               processedImages[i] = await compressImage(base64);

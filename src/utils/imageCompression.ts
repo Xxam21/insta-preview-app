@@ -1,6 +1,6 @@
-const TARGET_FILE_SIZE = 200 * 1024; // Viser 200ko par image
+const TARGET_FILE_SIZE = 100 * 1024; // Viser 100ko par image pour iPhone
 const MIN_QUALITY = 0.1; // Qualité minimale
-const INITIAL_MAX_SIZE = 800; // Taille maximale initiale
+const INITIAL_MAX_SIZE = 600; // Taille maximale initiale
 
 const getBase64Size = (base64String: string): number => {
   const stringLength = base64String.length - 'data:image/jpeg;base64,'.length;
